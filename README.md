@@ -1,2 +1,2 @@
-# DL-Project
-DL project
+# Deep Learning Project
+## Music Genre Classification
