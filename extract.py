@@ -4,9 +4,21 @@ import pandas as pd
 from os import listdir
 from os.path import isfile, join
 
-from pandas.core.frame import DataFrame
+def extract_features(name, filepath=None):
+    """
+        The function extracts all the features of the specified file.
 
-def extract_features(name, filepath="./music/"):
+        Parameters:
+
+            name: Name of the file the features should be extracted for
+            filepath: Unless specified the default Filepath is the music folder in the same directory.
+
+        Returns:
+            Dictionary containing features and their values in a key:value format where key is the feature
+            name and values in a value/numpy array.
+    
+    
+    """
     data = {}
     if filepath!=None:
         filepath += "/" + name
@@ -58,22 +70,37 @@ def extract_features(name, filepath="./music/"):
 
     return data
 
-# d = extract_features("The Kid LAROI, Justin Bieber - STAY (Official Video).wav")
-# print(d)
-
 def Generate_CSV(directory):
+    """
+    The function takes in the directory and traverses over it. It extracts all the features of the
+    music file in the directory and returns a Result.csv file in the same directory.
 
+    Parameters:
+        directory: The folder directory containing wav files
+        
+    Returns:
+        None.
+        Returns a Result.csv file in the same directory.
+    
+    """
     # Fetching names of all files in directory
     onlyfiles = [f for f in listdir(directory) if isfile(join(directory, f))]
+
+    # Creatig Empty DataFrame to store features of all files
     csv = pd.DataFrame(columns=['id', 'zcr', 'chroma_cqt', 'chroma_cens', 'tonnetz', 'chroma_stft',
        'rmse', 'spectral_centroid', 'spectral_bandwidth', 'spectral_contrast', 'spectral_rolloff', 'mfcc'])
-       
-    print(csv)
+
+    # Traversing over the file in the directory
     for i in onlyfiles:
+        # Extracting featues of each music file
         data = pd.DataFrame(extract_features(i, filepath=directory), columns=csv.columns)
 
+        # Appending data onto a dataframe
         csv = csv.append(data)
-    # print(csv.shape)
-    csv.to_csv()
+
+    csv.set_index("id", inplace=True)
+    
+    # Saving extracted data to a csv file
+    csv.to_csv(directory+"/Result.csv", sep=",")
 
 Generate_CSV("./music")
