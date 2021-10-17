@@ -1,11 +1,15 @@
 import librosa
 import numpy as np
 import pandas as pd
+from os import listdir
+from os.path import isfile, join
+
+from pandas.core.frame import DataFrame
 
 def extract_features(name, filepath="./music/"):
     data = {}
     if filepath!=None:
-        filepath += name
+        filepath += "/" + name
 
     x, sr = librosa.load(filepath, sr=None, mono=True)  # kaiser_fast
 
@@ -52,8 +56,24 @@ def extract_features(name, filepath="./music/"):
     f = librosa.feature.mfcc(S=librosa.power_to_db(mel), n_mfcc=20)
     data['mfcc'] = [f]
 
-    features = pd.DataFrame(data)
-    return features
+    return data
 
-d = extract_features("The Kid LAROI, Justin Bieber - STAY (Official Video).wav")
-print(d)
+# d = extract_features("The Kid LAROI, Justin Bieber - STAY (Official Video).wav")
+# print(d)
+
+def Generate_CSV(directory):
+
+    # Fetching names of all files in directory
+    onlyfiles = [f for f in listdir(directory) if isfile(join(directory, f))]
+    csv = pd.DataFrame(columns=['id', 'zcr', 'chroma_cqt', 'chroma_cens', 'tonnetz', 'chroma_stft',
+       'rmse', 'spectral_centroid', 'spectral_bandwidth', 'spectral_contrast', 'spectral_rolloff', 'mfcc'])
+       
+    print(csv)
+    for i in onlyfiles:
+        data = pd.DataFrame(extract_features(i, filepath=directory), columns=csv.columns)
+
+        csv = csv.append(data)
+    # print(csv.shape)
+    csv.to_csv()
+
+Generate_CSV("./music")
